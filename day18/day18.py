@@ -12,7 +12,6 @@ with open(filename, "r") as f:
         tokens = line.strip().split(",")
         coords.append((int(tokens[0]), int(tokens[1])))
 
-# print(coords)
 ans = 0
 
 # obstacles = set(coords[:12])
@@ -23,14 +22,16 @@ def in_grid(coord):
     x, y = coord
     return x >= 0 and y >= 0 and x < width and y < height
 
+
 # dist to end
 def dist(coord):
-    return width-1-coord[0] + height-1-coord[1]
+    return width - 1 - coord[0] + height - 1 - coord[1]
 
-def astar():
+
+def astar(obstacles):
     open_list = dict()
     closed_list = set()
-    open_list[(0,0)] = 0
+    open_list[(0, 0)] = 0
     while len(open_list) > 0:
         coord, g = min(open_list.items(), key=lambda x: x[1] + dist(x[0]))
         open_list.pop(coord)
@@ -39,7 +40,7 @@ def astar():
         if coord == (width - 1, height - 1):
             return g
 
-        x,y = coord
+        x, y = coord
         for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
             adj = (x + dx, y + dy)
             if not in_grid(adj) or adj in obstacles:
@@ -50,9 +51,23 @@ def astar():
                 continue
             open_list[adj] = g + 1
 
-print(astar())
 
-for c in coords:
-    obstacles.add(c)
-    print(c)
-    print(astar())
+print(astar(obstacles))
+
+
+def binary_search(low, high):
+    if high < low:
+        return None
+    if high == low:
+        print(coords[low])
+        return
+    mid = (high + low) // 2
+    obstacles = coords[: mid + 1]
+    result = astar(obstacles)
+    if result is None:
+        binary_search(low, mid)
+    else:
+        binary_search(mid + 1, high)
+
+
+binary_search(1024, len(coords))
